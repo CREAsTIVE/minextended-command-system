@@ -3,7 +3,7 @@ package ru.kaufmania.minextended.commandsystem.tokens
 import org.bukkit.command.CommandSender
 import ru.kaufmania.minextended.commandsystem.CommandArguments
 
-open class ExactString(public var str: String) : Token {
+open class ExactString(protected var str: String) : Token {
     override fun parse(reader: TextReader, sender: CommandSender, commandArguments: CommandArguments?): ParseResult {
         return parseItem(reader, str)
     }
@@ -15,7 +15,7 @@ open class ExactString(public var str: String) : Token {
         return ParseResult.Success
     }
 }
-open class OneOfStrings(vararg var strings: String) : ExactString(strings[0]) {
+open class OneOfStrings(vararg var strings: String) : ExactString("") {
     protected var argName: String? = null
     fun store(argName: String): OneOfStrings {this.argName = argName; return this}
 

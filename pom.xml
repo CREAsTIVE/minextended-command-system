@@ -6,7 +6,7 @@
 
     <artifactId>command-system</artifactId>
     <groupId>ru.kaufmania.minextended</groupId>
-    <version>1.0</version>
+    <version>1.0.1</version>
     <packaging>jar</packaging>
 
     <name>consoleApp</name>
@@ -68,7 +68,7 @@
     <distributionManagement>
         <repository>
             <id>minextended</id>
-            <url>http://kaufmania.ru:8080/releases</url>
+            <url>http://kaufmania.ru:8080/snapshots</url>
         </repository>
     </distributionManagement>
 
