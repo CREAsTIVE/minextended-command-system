@@ -44,18 +44,14 @@ For the last version use:
 **Maven:**
 ```xml
 <repository>
-    ...
     <id>kaufmania</id>
     <url>http://kaufmania.ru:8080/snapshots</url>
-    ...
 </repository>
 
 <dependency>
-    ...
     <groupId>ru.kaufmania.minextended</groupId>
     <artifactId>command-system</artifactId>
     <version>1.0.1</version>
-    ...
 </dependency>
 ```
 
