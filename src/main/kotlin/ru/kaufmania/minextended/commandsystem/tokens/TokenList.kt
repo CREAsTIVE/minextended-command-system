@@ -16,12 +16,11 @@ open class TokenList(
             if (parseResult !is ParseResult.Success)
                 return parseResult
 
-            if (skipSpaces && !newReader.isEof() && !newReader.next().isWhitespace())
-                return ParseResult.Wrong("Space required")
-
             if (newReader.isEof() && index < tokens.size-1)
                 return ParseResult.Wrong("Not enough arguments")
 
+            if (index < tokens.size-1 && skipSpaces && !newReader.isEof() && !newReader.next().isWhitespace())
+                return ParseResult.Wrong("Space required")
 
             parsedCount = index
 

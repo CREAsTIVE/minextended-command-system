@@ -16,6 +16,8 @@ public class TextReader(val content: String, var cursor: Int = 0) {
 
     operator fun get(a: Int, b: Int): String = content.substring(a, b)
 
+    fun unext(): Char? = if (isEof()) null else next()
+
     fun next(): Char = this[cursor++]
     fun next(count: Int): String {
         cursor += count

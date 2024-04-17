@@ -24,13 +24,22 @@ override fun onEnable() {
         .syntax(
             TokenList( // "/test path2 (var1|var 2|something else) <anyPlayer>"
                 ExactString("path2"),
-                OneOfStrings("var1", "var 2", "something else").store("var"), // also supports spaces
+                OneOfStrings("var1", "var2", "three").store("var"),
                 AnyPlayer().store("player")
             )
         ) {
             _, _, args ->
             return@syntax CommandExecutionResult(true)
                 .reply("Selected variant ${args.strArgs["var"]} at index ${args.intArgs["var"]} with player ${args.strArgs["player"]}")
+        }
+        .syntax(
+            TokenList(
+                ExactString("selector"),
+                EntitySelectorToken() // BETTA
+            )
+        ) {
+            _, _, _ -> return@syntax CommandExecutionResult(false)
+                .reply("STILL BETA")
         }
     )
 
@@ -39,23 +48,23 @@ override fun onEnable() {
 ```
 
 # Installation
+**Please use snapshot versions, because last release (1.0.0) didn't support like anything
+Before 2.0.0 release any snapshot versions should be more stable, then latest release**
+
 For the last version use:
 
 **Maven:**
 ```xml
 <repository>
-    ...
     <id>kaufmania</id>
     <url>http://kaufmania.ru:8080/snapshots</url>
-    ...
 </repository>
-
+```
+```xml
 <dependency>
-    ...
     <groupId>ru.kaufmania.minextended</groupId>
     <artifactId>command-system</artifactId>
-    <version>1.0.1</version>
-    ...
+    <version>1.1.0-ALPHA</version>
 </dependency>
 ```
 
