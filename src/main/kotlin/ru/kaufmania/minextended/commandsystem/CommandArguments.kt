@@ -1,12 +1,16 @@
 package ru.kaufmania.minextended.commandsystem
 
 class CommandArguments {
-    val strArgs = mutableMapOf<String, String>()
-    fun set(arg: String?, value: String) { arg?.let { strArgs[it] = value } }
+    class ArgsMap<T : Any> {
+        private val values = mutableMapOf<String, T>()
+        operator fun get(value: String) =
+            values[value]
 
-    val intArgs = mutableMapOf<String, Int>()
-    fun set(arg: String?, value: Int) { arg?.let { intArgs[it] = value } }
+        operator fun set(index: String, value: T) =
+            values.set(index, value)
+    }
 
-    val objectArgs = mutableMapOf<String, Any>()
-    fun set(arg: String?, value: Any) { arg?.let { objectArgs[it] = value } }
+    val strings = ArgsMap<String>()
+    val ints = ArgsMap<Int>()
+    var anys = ArgsMap<Any>()
 }

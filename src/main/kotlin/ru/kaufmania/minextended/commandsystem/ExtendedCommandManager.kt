@@ -1,5 +1,6 @@
 package ru.kaufmania.minextended.commandsystem
 
+import org.bukkit.ChatColor
 import ru.kaufmania.minextended.commandsystem.tokens.ParseResult
 import ru.kaufmania.minextended.commandsystem.tokens.TextReader
 import ru.kaufmania.minextended.commandsystem.tokens.TokenList
@@ -11,7 +12,10 @@ import org.bukkit.plugin.java.JavaPlugin
 
 class ExtendedCommandManager : CommandExecutor, TabCompleter {
     private val commands = mutableMapOf<String, CustomCommand>()
-    public fun command(name: String, command: CustomCommand){
+
+    fun command(name: String, customCommandAction: CustomCommand.() -> Unit) =
+        command(name, CustomCommand(customCommandAction))
+    fun command(name: String, command: CustomCommand){
         commands[name] = command
     }
 
@@ -21,27 +25,28 @@ class ExtendedCommandManager : CommandExecutor, TabCompleter {
         var mostPossibleParse: TokenList? = null
         var mostPossibleParseResult: ParseResult? = null
 
-        for ((syntax, executor) in commandExecutor.syntaxes) {
+        for ((syntax, executor) in commandExecutor.syntaxCommandMap) {
             val commandArgs = CommandArguments()
             val parseResult = syntax.parse(TextReader(args.joinToString(" "), 0), sender, commandArgs)
 
             if (syntax is TokenList){
                 if (mostPossibleParse == null ||
                     (syntax.parsedCount.toFloat() / syntax.tokens.size) >
-                    (mostPossibleParse.parsedCount.toFloat() / mostPossibleParse.tokens.size)){
+                    (mostPossibleParse.parsedCount.toFloat() / mostPossibleParse.tokens.size)
+                ) {
                     mostPossibleParse = syntax
                     mostPossibleParseResult = parseResult
                 }
             }
 
             if (parseResult is ParseResult.Success)
-                return executor(syntax, sender, commandArgs).apply(sender)
+                return executor.finalize(CommandExecutionAction.ExecutionData(sender, commandArgs))
         }
 
         if (mostPossibleParseResult is ParseResult.Wrong)
-            sender.sendMessage(mostPossibleParseResult.errorMessage)
+            sender.sendMessage("${ChatColor.RED}${mostPossibleParseResult.expected} expected.")
         else
-            sender.sendMessage("IDK")
+            sender.sendMessage("${ChatColor.RED}Internal error")
         return false
     }
 
@@ -50,8 +55,8 @@ class ExtendedCommandManager : CommandExecutor, TabCompleter {
 
         val completions = mutableListOf<String>()
 
-        for (syntax in commandExecutor.syntaxes) {
-            val parseResult = syntax.key.parse(TextReader(args.joinToString(" "), 0), sender, null)
+        for (syntax in commandExecutor.syntaxCommandMap) {
+            val parseResult = syntax.key.parse(TextReader(args.joinToString(" "), 0), sender, CommandArguments())
 
             if (parseResult is ParseResult.Maybe)
                 completions.addAll(parseResult.possibleVariants)
