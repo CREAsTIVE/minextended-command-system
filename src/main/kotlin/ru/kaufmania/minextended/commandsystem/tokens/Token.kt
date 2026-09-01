@@ -16,7 +16,7 @@ abstract class Token {
 
 
     private var storeName: String? = null
-    fun store(name: String) { storeName = name }
+    fun store(name: String) = apply { storeName = name }
 
     private var overrideExpected: String? = null
 

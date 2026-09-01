@@ -1,65 +1,60 @@
-# General
-The **Minextended CommandSystem** library is one of the powerful **Minextended** tools that greatly extends existed Spigot API
+# Minextended Command System
 
-_This tool was written for Kotlin. You can still use it with Java, but it can be extremely inconvenient_
+A powerful, type-safe command parsing and execution DSL for **Kotlin** on **Paper / Spigot / Bukkit** Minecraft servers.
 
-This library allow you to create you're own command with a complex syntax kinda similar to regex. 
+## Features
 
-Every command, created with this library have **parse error output** and **tab auto-completion**
+- **Expressive DSL**: Declare complex, branching command grammars cleanly using token sequences (`TokenList`, `OneOfStrings`, `ExactString`, etc.).
+- **Automatic Tab Completion**: Intelligent auto-completion suggestions generated automatically from the defined command syntax tree.
+- **Typed Argument Extraction**: Extracted arguments are mapped and typed directly into the execution context (e.g. `args.strArgs["name"]`, `args.intArgs["index"]`).
+- **Rich Error Handling**: Detailed syntax error reporting when command invocations fail to match required tokens.
+- **Flexible Token Extensibility**: Create custom domain tokens for server-specific entities, locations, or enums.
 
-**For example:**
+## Usage Example
+
 ```kotlin
-override fun onEnable() {
-    commandManager.command("test", CustomCommand()
-        .syntax(
-            TokenList( // "/test path1 [any]"
-                ExactString("path1"),
-                AnyContinuesString().store("text")
-            )
-        ) {
-            _, _, args -> // For "/test path1 a bc d" reply by "a bc d"
-            return@syntax CommandExecutionResult(true)
-                .reply(args.strArgs["text"]!!)
-        }
-        .syntax(
-            TokenList( // "/test path2 (var1|var 2|something else) <anyPlayer>"
-                ExactString("path2"),
-                OneOfStrings("var1", "var2", "three").store("var"),
-                AnyPlayer().store("player")
-            )
-        ) {
-            _, _, args ->
-            return@syntax CommandExecutionResult(true)
-                .reply("Selected variant ${args.strArgs["var"]} at index ${args.intArgs["var"]} with player ${args.strArgs["player"]}")
-        }
-        .syntax(
-            TokenList(
-                ExactString("selector"),
-                EntitySelectorToken() // BETTA
-            )
-        ) {
-            _, _, _ -> return@syntax CommandExecutionResult(false)
-                .reply("STILL BETA")
-        }
-    )
+import ru.kaufmania.minextended.commandsystem.*
+import ru.kaufmania.minextended.commandsystem.tokens.*
+import org.bukkit.plugin.java.JavaPlugin
 
-    commandManager.register(this)
+class MyPlugin : JavaPlugin() {
+    private val commandManager = ExtendedCommandManager()
+
+    override fun onEnable() {
+        commandManager.command("test", CustomCommand()
+            // Branch 1: /test path1 <text...>
+            .syntax(
+                TokenList(
+                    ExactString("path1"),
+                    AnyContinuesString().store("text")
+                )
+            ) { _, _, args ->
+                val text = args.strArgs["text"] ?: ""
+                CommandExecutionResult(true).reply("Received: $text")
+            }
+            
+            // Branch 2: /test path2 <var1|var2|three> <player>
+            .syntax(
+                TokenList(
+                    ExactString("path2"),
+                    OneOfStrings("var1", "var2", "three").store("variant"),
+                    AnyPlayer().store("target")
+                )
+            ) { _, _, args ->
+                val variant = args.strArgs["variant"]
+                val target = args.strArgs["target"]
+                CommandExecutionResult(true).reply("Selected $variant for player $target")
+            }
+        )
+
+        commandManager.register(this)
+    }
 }
 ```
 
-# Installation
-**Please use snapshot versions, because last release (1.0.0) didn't support like anything
-Before 2.0.0 release any snapshot versions should be more stable, then latest release**
+## Installation
 
-For the last version use:
-
-**Maven:**
-```xml
-<repository>
-    <id>kaufmania</id>
-    <url>http://kaufmania.ru:8080/snapshots</url>
-</repository>
-```
+### Maven
 ```xml
 <dependency>
     <groupId>ru.kaufmania.minextended</groupId>
@@ -68,9 +63,7 @@ For the last version use:
 </dependency>
 ```
 
-# Planned
-Currently, I'm focus my view on creating more token types for any possible thing, so you can request you're own token types in the **issues**
-
-I'm also want to create something like parser for the command, allowing to define command by String like: `/test path2 <oneOf:var1|var 2|something else:variant> <anyPlayer:player>` 
-
-Also, I'm want try to make **java** support and working on **documentation**
+### Gradle (Kotlin DSL)
+```kotlin
+implementation("ru.kaufmania.minextended:command-system:1.1.0-ALPHA")
+```
